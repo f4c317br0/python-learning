@@ -1,0 +1,30 @@
+{
+  "group1": {
+    "total_items": 5,
+    "total_value": 17050,
+    "items": [
+      "The One Ring",
+      "Silver Necklace",
+      "River Pearl",
+      "Mithril Coat",
+      "Arkenstone"
+    ]
+  },
+  "group2": {
+    "total_items": 6,
+    "total_value": 1140,
+    "items": [
+      "Golden Goblet",
+      "Elven Rope",
+      "Elven Blade"
+    ]
+  },
+  "group4": {
+    "total_items": 8,
+    "total_value": 500,
+    "items": [
+      "Precious Gem",
+      "Golden Cup"
+    ]
+  }
+}
