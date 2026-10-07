@@ -1,0 +1,120 @@
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow
+# from first import Ui_Form
+from PyQt6 import QtCore, QtWidgets
+
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(506, 355)
+        self.label_1 = QtWidgets.QLabel(parent=Form)
+        self.label_1.setGeometry(QtCore.QRect(10, 40, 151, 51))
+        self.label_1.setObjectName("label_1")
+        self.label_2 = QtWidgets.QLabel(parent=Form)
+        self.label_2.setGeometry(QtCore.QRect(160, 40, 151, 51))
+        self.label_2.setObjectName("label_2")
+        self.label_3 = QtWidgets.QLabel(parent=Form)
+        self.label_3.setGeometry(QtCore.QRect(320, 40, 151, 51))
+        self.label_3.setObjectName("label_3")
+        self.radioButton_1 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_1.setGeometry(QtCore.QRect(40, 120, 82, 21))
+        self.radioButton_1.setObjectName("radioButton_1")
+        self.color_group_1 = QtWidgets.QButtonGroup(Form)
+        self.color_group_1.setObjectName("color_group_1")
+        self.color_group_1.addButton(self.radioButton_1)
+        self.radioButton_4 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_4.setGeometry(QtCore.QRect(210, 120, 82, 21))
+        self.radioButton_4.setObjectName("radioButton_4")
+        self.color_group_2 = QtWidgets.QButtonGroup(Form)
+        self.color_group_2.setObjectName("color_group_2")
+        self.color_group_2.addButton(self.radioButton_4)
+        self.radioButton_7 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_7.setGeometry(QtCore.QRect(360, 120, 82, 21))
+        self.radioButton_7.setObjectName("radioButton_7")
+        self.color_group_3 = QtWidgets.QButtonGroup(Form)
+        self.color_group_3.setObjectName("color_group_3")
+        self.color_group_3.addButton(self.radioButton_7)
+        self.radioButton_2 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_2.setGeometry(QtCore.QRect(40, 150, 82, 21))
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.color_group_1.addButton(self.radioButton_2)
+        self.radioButton_5 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_5.setGeometry(QtCore.QRect(210, 150, 82, 21))
+        self.radioButton_5.setObjectName("radioButton_5")
+        self.color_group_2.addButton(self.radioButton_5)
+        self.radioButton_8 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_8.setGeometry(QtCore.QRect(360, 150, 82, 21))
+        self.radioButton_8.setObjectName("radioButton_8")
+        self.color_group_3.addButton(self.radioButton_8)
+        self.radioButton_3 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_3.setGeometry(QtCore.QRect(40, 180, 82, 21))
+        self.radioButton_3.setObjectName("radioButton_3")
+        self.color_group_1.addButton(self.radioButton_3)
+        self.radioButton_6 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_6.setGeometry(QtCore.QRect(210, 180, 82, 21))
+        self.radioButton_6.setObjectName("radioButton_6")
+        self.color_group_2.addButton(self.radioButton_6)
+        self.radioButton_9 = QtWidgets.QRadioButton(parent=Form)
+        self.radioButton_9.setGeometry(QtCore.QRect(360, 180, 82, 21))
+        self.radioButton_9.setObjectName("radioButton_9")
+        self.color_group_3.addButton(self.radioButton_9)
+        self.make_flag = QtWidgets.QPushButton(parent=Form)
+        self.make_flag.setGeometry(QtCore.QRect(320, 220, 141, 51))
+        self.make_flag.setObjectName("make_flag")
+        self.result = QtWidgets.QLabel(parent=Form)
+        self.result.setGeometry(QtCore.QRect(50, 220, 201, 41))
+        self.result.setText("")
+        self.result.setObjectName("result")
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.label_1.setText(_translate("Form", "<html><head/><body><p><span style=\" "
+                                                "font-size:26pt;\">Цвет №1</span></p></body></html>"))
+        self.label_2.setText(_translate("Form", "<html><head/><body><p><span style=\" "
+                                                "font-size:26pt;\">Цвет №2</span></p></body></html>"))
+        self.label_3.setText(_translate("Form", "<html><head/><body><p><span style=\" "
+                                                "font-size:26pt;\">Цвет №3</span></p></body></html>"))
+        self.radioButton_1.setText(_translate("Form", "Синий"))
+        self.radioButton_4.setText(_translate("Form", "Синий"))
+        self.radioButton_7.setText(_translate("Form", "Синий"))
+        self.radioButton_2.setText(_translate("Form", "Красный"))
+        self.radioButton_5.setText(_translate("Form", "Красный"))
+        self.radioButton_8.setText(_translate("Form", "Красный"))
+        self.radioButton_3.setText(_translate("Form", "Зелёный"))
+        self.radioButton_6.setText(_translate("Form", "Зелёный"))
+        self.radioButton_9.setText(_translate("Form", "Зелёный"))
+        self.make_flag.setText(_translate("Form", "Сделать флаг"))
+
+
+class FlagMaker(QMainWindow, Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(500, 300)
+        self.setupUi(self)
+        self.make_flag.clicked.connect(self.run)
+
+    def run(self):
+        res = []
+        for el in self.color_group_1.buttons():
+            if el.isChecked():
+                res.append(el.text())
+        for el in self.color_group_2.buttons():
+            if el.isChecked():
+                res.append(el.text())
+        for el in self.color_group_3.buttons():
+            if el.isChecked():
+                res.append(el.text())
+
+        self.result.setText(f'Цвета: {res[0]}, {res[1]} и {res[2]}')
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = FlagMaker()
+    ex.show()
+    sys.exit(app.exec())
