@@ -1,0 +1,47 @@
+from PyQt6 import QtCore, QtWidgets
+import sys
+from PyQt6.QtWidgets import QApplication, QWidget
+import random
+
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(808, 420)
+        self.button = QtWidgets.QPushButton(parent=Form)
+        self.button.setGeometry(QtCore.QRect(320, 30, 151, 41))
+        self.button.setObjectName("button")
+        self.textBrowser = QtWidgets.QTextBrowser(parent=Form)
+        self.textBrowser.setGeometry(QtCore.QRect(20, 90, 771, 311))
+        self.textBrowser.setObjectName("textBrowser")
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.button.setText(_translate("Form", "Вывести"))
+
+
+class RandomString(QWidget, Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.button.clicked.connect(self.load_random_string)
+
+    def load_random_string(self):
+        try:
+            with open('lines.txt', 'r', encoding='utf-8') as file:
+                text = file.readlines()
+                line = random.choice(text)
+            self.textBrowser.setHtml(f'<h1>{line.rstrip('\n')}</h1>')
+        except Exception as er:
+            self.textBrowser.setText('')
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = RandomString()
+    ex.show()
+    sys.exit(app.exec())
