@@ -1,0 +1,15 @@
+readme
+config.txt
+script.py
+data.csv
+image.png
+archive.zip
+my.file.with.dots.txt
+another.script.py
+final.data.csv
+picture.image.png
+no_extension
+file_with_underscore.txt
+CamelCase.py
+UPPERCASE.CSV
+lowercase.png
