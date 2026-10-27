@@ -1,0 +1,51 @@
+import sys
+from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6 import QtCore, QtWidgets
+
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(415, 457)
+        self.button = QtWidgets.QPushButton(parent=Form)
+        self.button.setGeometry(QtCore.QRect(90, 20, 201, 51))
+        self.button.setObjectName("button")
+        self.text_field = QtWidgets.QTextBrowser(parent=Form)
+        self.text_field.setGeometry(QtCore.QRect(10, 80, 401, 371))
+        self.text_field.setObjectName("text_field")
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.button.setText(_translate("Form", "Загрузить строки"))
+
+
+class Shuffle(QWidget, Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.button.clicked.connect(self.load_strings)
+
+    def load_strings(self):
+        with open('lines.txt', 'r', encoding='utf-8') as f:
+            arr = f.read().splitlines()
+        even = arr[1::2]
+        odd = arr[0::2]
+        self.text_field.setText('')
+        for el in even + odd:
+            self.text_field.append(el)
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    sys.excepthook = except_hook
+    ex = Shuffle()
+    ex.show()
+    sys.exit(app.exec())
