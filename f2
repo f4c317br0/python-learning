@@ -1,0 +1,165 @@
+import sqlite3
+import sys
+
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem
+
+NOT_FOUND = "По этому запросу ничего не найдено"
+REQUIRED_COLUMNS = ('id', 'title', 'year', 'genre', 'duration')
+
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(800, 600)
+        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.textEdit = QtWidgets.QTextEdit(parent=self.centralwidget)
+        self.textEdit.setGeometry(QtCore.QRect(10, 10, 311, 87))
+        self.textEdit.setObjectName("textEdit")
+        self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.pushButton.setGeometry(QtCore.QRect(340, 30, 111, 41))
+        self.pushButton.setObjectName("pushButton")
+        self.saveButton = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.saveButton.setGeometry(QtCore.QRect(460, 30, 111, 41))
+        self.saveButton.setObjectName("saveButton")
+        self.tableWidget = QtWidgets.QTableWidget(parent=self.centralwidget)
+        self.tableWidget.setGeometry(QtCore.QRect(10, 110, 771, 431))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(0)
+        self.tableWidget.setRowCount(0)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 26))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.pushButton.setText(_translate("MainWindow", "Запуск"))
+        self.saveButton.setText(_translate("MainWindow", "Изменить"))
+
+
+class MyWidget(QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.con = sqlite3.connect("films_db.sqlite")
+        self.titles = []
+        self.rows = []
+        self.pushButton.clicked.connect(self.update_result)
+        self.saveButton.clicked.connect(self.save_results)
+
+    def get_cursor(self):
+        try:
+            return self.con.cursor()
+        except sqlite3.ProgrammingError:
+            self.con = sqlite3.connect("films_db.sqlite")
+            return self.con.cursor()
+
+    @staticmethod
+    def build_query(text):
+        text = text.strip().rstrip(';').strip()
+        if not text:
+            return None, ()
+        try:
+            return "SELECT * FROM films WHERE id = ?", (int(text),)
+        except ValueError:
+            pass
+        low = text.lower()
+        if low.startswith('select'):
+            return text, ()
+        if low.startswith('where'):
+            text = text[5:].strip()
+        return f"SELECT * FROM films WHERE {text}", ()
+
+    def run_query(self, query, params=()):
+        result, titles = [], []
+        if query:
+            cur = self.get_cursor()
+            try:
+                result = cur.execute(query, params).fetchall()
+                titles = [d[0] for d in cur.description] if cur.description else []
+            except (sqlite3.Error, sqlite3.Warning):
+                result, titles = [], []
+
+        self.rows = result
+        self.titles = titles
+
+        if not result:
+            self.tableWidget.clear()
+            self.tableWidget.setRowCount(0)
+            self.tableWidget.setColumnCount(0)
+            self.statusbar.showMessage(NOT_FOUND)
+            return False
+
+        self.statusbar.showMessage("")
+
+        self.tableWidget.clear()
+        self.tableWidget.setColumnCount(len(titles))
+        self.tableWidget.setHorizontalHeaderLabels(titles)
+        self.tableWidget.setRowCount(len(result))
+        for i, elem in enumerate(result):
+            for j, val in enumerate(elem):
+                self.tableWidget.setItem(i, j, QTableWidgetItem(str(val)))
+        return True
+
+    def update_result(self):
+        query, params = self.build_query(self.textEdit.toPlainText())
+        self.run_query(query, params)
+
+    def save_results(self):
+        if not self.rows:
+            return
+        if not all(col in self.titles for col in REQUIRED_COLUMNS):
+            return
+        pos = {col: self.titles.index(col) for col in REQUIRED_COLUMNS}
+        ids = [row[pos['id']] for row in self.rows]
+        valid = QMessageBox.question(
+            self,
+            '',
+            "Действительно заменить элементы с id " + ", ".join(map(str, ids)) + "?",
+            buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if valid != QMessageBox.StandardButton.Yes:
+            return
+
+        cur = self.get_cursor()
+        new_ids = []
+        for row in self.rows:
+            old_id = row[pos['id']]
+            title = row[pos['title']]
+            year = row[pos['year']]
+            genre = row[pos['genre']]
+            duration = row[pos['duration']]
+            new_title = str(title)[::-1] if title is not None else None
+            new_year = int(year) + 1000 if year is not None else None
+            new_duration = duration * 2 if duration is not None else None
+            cur.execute("DELETE FROM films WHERE id = ?", (old_id,))
+            cur.execute(
+                "INSERT INTO films(title, year, genre, duration) VALUES (?, ?, ?, ?)",
+                (new_title, new_year, genre, new_duration)
+            )
+            new_ids.append(cur.lastrowid)
+        self.con.commit()
+        marks = ", ".join("?" * len(new_ids))
+        self.run_query(f"SELECT * FROM films WHERE id IN ({marks})", tuple(new_ids))
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    sys.excepthook = except_hook
+    ex = MyWidget()
+    ex.show()
+    sys.exit(app.exec())
