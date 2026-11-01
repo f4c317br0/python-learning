@@ -1,0 +1,70 @@
+import os
+import sys
+
+from PyQt6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+)
+
+
+class Notebook(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Текстовый редактор")
+        self.resize(456, 327)
+
+        self.filename_edit = QLineEdit()
+        self.filename_edit.setText("lines.txt")
+
+        self.new_button = QPushButton("Создать новый")
+        self.save_button = QPushButton("Сохранить файл")
+        self.open_button = QPushButton("Открыть файл")
+
+        self.text_edit = QPlainTextEdit()
+
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.filename_edit)
+        left_layout.addWidget(self.new_button)
+        left_layout.addWidget(self.save_button)
+        left_layout.addWidget(self.open_button)
+        left_layout.addStretch()
+
+        main_layout = QHBoxLayout()
+        main_layout.addLayout(left_layout)
+        main_layout.addWidget(self.text_edit)
+        main_layout.setStretch(1, 1)
+        self.setLayout(main_layout)
+
+        self.new_button.clicked.connect(self.new_file)
+        self.save_button.clicked.connect(self.save_file)
+        self.open_button.clicked.connect(self.open_file)
+
+    def new_file(self):
+        self.filename_edit.clear()
+        self.text_edit.clear()
+
+    def save_file(self):
+        filename = self.filename_edit.text()
+        if not filename:
+            return
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(self.text_edit.toPlainText())
+
+    def open_file(self):
+        filename = self.filename_edit.text()
+        if not filename or not os.path.isfile(filename):
+            return
+        with open(filename, "r", encoding="utf-8") as f:
+            self.text_edit.setPlainText(f.read())
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = Notebook()
+    window.show()
+    sys.exit(app.exec())
